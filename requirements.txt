@@ -1,0 +1,7 @@
+langgraph 
+langchain-openai 
+fastapi 
+uvicorn 
+tavily-python 
+psycopg2-binary 
+redis

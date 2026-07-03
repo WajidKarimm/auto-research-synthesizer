@@ -8,21 +8,23 @@ does this loop produce a decent, cited research answer?
 
 import os
 
-from langchain_anthropic import ChatAnthropic
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ars.core.tools import tavily_search
 
-MODEL_NAME = os.environ.get("ARS_MODEL", "claude-sonnet-4-6")
+# openai/gpt-oss-120b is Groq's current recommended general-purpose model
+# (llama-3.3-70b-versatile was deprecated June 2026 — don't use it in new code)
+MODEL_NAME = os.environ.get("ARS_MODEL", "openai/gpt-oss-120b")
 
 
-def _llm(temperature: float = 0.0) -> ChatAnthropic:
-    return ChatAnthropic(model=MODEL_NAME, temperature=temperature)
+def _llm(temperature: float = 0.0) -> ChatGroq:
+    return ChatGroq(model=MODEL_NAME, temperature=temperature)
 
 
-# --------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Planner: turns one research question into 2-4 concrete search queries
-# --------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
 PLANNER_SYSTEM_PROMPT = """You are a research planner. Given a user's research \
 question, break it into 2 to 4 specific, distinct web search queries that \
@@ -48,9 +50,9 @@ def plan(question: str) -> list[str]:
     return queries[:4] if queries else [question]
 
 
-# --------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Researcher: runs each query, collects sources
-# --------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
 
 def research(queries: list[str]) -> list[dict]:

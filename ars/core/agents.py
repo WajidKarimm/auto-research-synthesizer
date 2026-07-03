@@ -20,9 +20,9 @@ def _llm(temperature: float = 0.0) -> ChatAnthropic:
     return ChatAnthropic(model=MODEL_NAME, temperature=temperature)
 
 
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 # Planner: turns one research question into 2-4 concrete search queries
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 
 PLANNER_SYSTEM_PROMPT = """You are a research planner. Given a user's research \
 question, break it into 2 to 4 specific, distinct web search queries that \
@@ -48,9 +48,9 @@ def plan(question: str) -> list[str]:
     return queries[:4] if queries else [question]
 
 
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 # Researcher: runs each query, collects sources
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 
 
 def research(queries: list[str]) -> list[dict]:

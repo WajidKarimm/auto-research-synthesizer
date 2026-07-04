@@ -53,10 +53,16 @@ def build_graph():
     return graph.compile()
 
 
-def run(question: str) -> str:
+def run(question: str) -> ResearchState:
     app = build_graph()
     result = app.invoke({"question": question})
-    return result["answer"]
+    return result
+
+
+def _print_sources(sources: list[dict]) -> None:
+    print("Sources:")
+    for i, s in enumerate(sources):
+        print(f"  [{i+1}] {s['title']}\n      {s['url']}")
 
 
 if __name__ == "__main__":
@@ -70,5 +76,8 @@ if __name__ == "__main__":
 
     q = " ".join(sys.argv[1:])
     print(f"\nResearch question: {q}\n{'-' * 60}")
-    final_answer = run(q)
-    print(f"\n{'-' * 60}\nAnswer:\n{final_answer}\n")
+    final_state = run(q)
+    print(f"\n{'-' * 60}\nAnswer:\n{final_state['answer']}\n")
+    print(f"{'-' * 60}")
+    _print_sources(final_state["sources"])
+    print()

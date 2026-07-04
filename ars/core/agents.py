@@ -81,15 +81,28 @@ def research(queries: list[str]) -> list[dict]:
 WRITER_SYSTEM_PROMPT = """You are a research synthesizer. You are given a \
 research question and a set of source snippets pulled from the web.
 
-Write a clear, well-organized answer to the question using ONLY information \
-present in the sources. Rules:
+Write a clear answer to the question using ONLY information present in the \
+sources. Rules:
+- Output plain prose paragraphs. Do NOT use markdown tables, bullet lists, \
+  or headers. A few well-organized paragraphs only.
+- Paraphrase source content in your own words. Do NOT use quotation marks \
+  to lift exact phrasing from a source, even short phrases. If a number or \
+  fact is source-specific, state it in your own sentence structure.
 - Every factual claim must be traceable to a source. Cite sources inline \
   using [n] matching the numbered source list you're given.
+- Do not cite the same source more than 2 times in the whole answer -- if \
+  you find yourself doing that, the point is probably better made once and \
+  referenced, not repeated.
+- Do not state a specific number, statistic, or benchmark result unless the \
+  exact source snippet contains that number. If a source only implies \
+  something qualitatively, describe it qualitatively -- do not sharpen a \
+  vague statement into a precise-sounding figure.
+- If two sources disagree, say so explicitly rather than picking one silently.
 - If the sources don't fully answer the question, say so explicitly rather \
   than filling gaps from your own knowledge.
 - Do not invent sources or facts not present in the provided snippets.
-- Keep it tight: a few well-cited paragraphs, not an essay.
-"""
+- Keep it tight: 3-4 paragraphs maximum, not an essay.
+""" 
 
 
 def write(question: str, sources: list[dict]) -> str:

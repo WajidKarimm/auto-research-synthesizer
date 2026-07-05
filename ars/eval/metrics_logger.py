@@ -1,5 +1,5 @@
 """
-Lightweight local run history -- appends the summary from run_evals.py to
+Lightweight local run history --- appends the summary from run_evals.py to
 eval_history.json so you can plot faithfulness trend over time as you
 change the writer prompt, model, or retrieval strategy.
 

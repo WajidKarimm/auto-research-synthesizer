@@ -6,3 +6,6 @@ tavily-python
 psycopg2-binary 
 redis
 langchain_groq
+ragas
+langchain-community
+langchain-google-vertexai

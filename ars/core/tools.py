@@ -15,12 +15,11 @@ class SearchResult(TypedDict):
     content: str
 
 
-def tavily_search(query: str, max_results: int = 4) -> list[SearchResult]:
+def tavily_search(query: str, max_results: int = 3) -> list[SearchResult]:
     """
-    Run a single web search and return raw source snippets.
-
-    Requires TAVILY_API_KEY in the environment. Raises a clear error
-    if it's missing rather than failing silently later in the graph.
+    Requires TAVILY_API_KEY in the environment.
+    Content is truncated to keep the writer prompt within Groq's
+    free-tier token-per-minute limits.
     """
     api_key = os.environ.get("TAVILY_API_KEY")
     if not api_key:
@@ -37,13 +36,15 @@ def tavily_search(query: str, max_results: int = 4) -> list[SearchResult]:
         search_depth="basic",
     )
 
+    MAX_CONTENT_CHARS = 900
+
     results: list[SearchResult] = []
     for item in response.get("results", []):
         results.append(
             SearchResult(
                 title=item.get("title", ""),
                 url=item.get("url", ""),
-                content=item.get("content", ""),
+                content=item.get("content", "")[:MAX_CONTENT_CHARS],
             )
         )
     return results

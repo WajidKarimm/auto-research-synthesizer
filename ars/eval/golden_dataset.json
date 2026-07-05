@@ -1,0 +1,96 @@
+{
+  "version": "1.0",
+  "notes": "Faithfulness is reference-free (no ground_truth needed) -- it checks whether every claim in the answer is supported by the retrieved sources, not whether the answer matches a 'correct' response. category and expected_behavior are for human review when a score looks wrong, not consumed by the eval script.",
+  "questions": [
+    {
+      "id": "q01",
+      "question": "What are the tradeoffs of pgvector vs Pinecone for a small-scale RAG system?",
+      "category": "comparison",
+      "expected_behavior": "Should cover cost, ops overhead, and the ~5M vector scale crossover point without inventing precise numbers not present in sources."
+    },
+    {
+      "id": "q02",
+      "question": "What is HNSW indexing and how does it work?",
+      "category": "factual",
+      "expected_behavior": "Should explain the graph-based approximate nearest neighbor concept without hallucinating implementation details."
+    },
+    {
+      "id": "q03",
+      "question": "Is RAG becoming obsolete now that LLMs support very long context windows?",
+      "category": "trap_contradiction",
+      "expected_behavior": "Sources likely disagree -- a good answer states both positions (cost/latency of long context vs RAG's freshness/scale advantages) rather than picking one side silently."
+    },
+    {
+      "id": "q04",
+      "question": "What is the best vector database for a RAG system?",
+      "category": "ambiguous",
+      "expected_behavior": "Question is underspecified (no scale, budget, or latency constraint given). Good answer should flag that 'best' depends on those factors rather than confidently naming one winner."
+    },
+    {
+      "id": "q05",
+      "question": "What is semantic caching and how does it reduce LLM inference costs?",
+      "category": "factual",
+      "expected_behavior": "Should explain embedding-similarity cache hits conceptually, grounded in sources, not invented mechanics."
+    },
+    {
+      "id": "q06",
+      "question": "Does increasing chunk size always improve RAG retrieval accuracy?",
+      "category": "trap_contradiction",
+      "expected_behavior": "Answer should be 'no, it's a tradeoff' -- larger chunks add context but dilute embedding specificity. A bad answer picks one direction without nuance."
+    },
+    {
+      "id": "q07",
+      "question": "LangGraph vs CrewAI vs AutoGen: which is best for building multi-agent systems?",
+      "category": "comparison",
+      "expected_behavior": "Three-way comparison stresses whether the writer keeps citations straight across more sources without cross-contaminating claims between frameworks."
+    },
+    {
+      "id": "q08",
+      "question": "Redis vs Postgres for caching LLM responses: what are the tradeoffs?",
+      "category": "comparison",
+      "expected_behavior": "Should cover latency, persistence, and operational complexity without inventing benchmark numbers absent from sources."
+    },
+    {
+      "id": "q09",
+      "question": "How is the RAGAS faithfulness metric computed?",
+      "category": "factual",
+      "expected_behavior": "Should describe claim extraction + context verification, since this is directly checkable against RAGAS's own documentation."
+    },
+    {
+      "id": "q10",
+      "question": "How much does it cost to run a RAG pipeline in production?",
+      "category": "ambiguous",
+      "expected_behavior": "No single correct number exists -- depends on scale, model choice, and traffic. Good answer should decompose cost drivers rather than state one fabricated total."
+    },
+    {
+      "id": "q11",
+      "question": "Is fine-tuning better than RAG for domain-specific question answering?",
+      "category": "trap_contradiction",
+      "expected_behavior": "Genuinely debated in the literature/blogs. Good answer presents both perspectives and the conditions under which each wins, rather than declaring a winner."
+    },
+    {
+      "id": "q12",
+      "question": "FastAPI vs Flask for serving LLM applications: what are the key differences?",
+      "category": "comparison",
+      "expected_behavior": "Should cover async support and performance without overstating benchmark specifics not in the sources."
+    },
+    {
+      "id": "q13",
+      "question": "Do multi-agent AI systems actually reduce hallucination compared to single LLM calls?",
+      "category": "trap_contradiction",
+      "expected_behavior": "Evidence is mixed -- multi-agent can catch some errors but can also compound others. A bad answer asserts multi-agent is strictly better."
+    },
+    {
+      "id": "q14",
+      "question": "What is the difference between context precision and context recall in RAG evaluation?",
+      "category": "factual",
+      "expected_behavior": "Two distinct, commonly confused metrics -- checks whether the writer keeps definitions cleanly separated instead of blending them."
+    },
+    {
+      "id": "q15",
+      "question": "What's a reasonable latency budget for a production RAG API endpoint?",
+      "category": "ambiguous",
+      "expected_behavior": "Depends heavily on use case (chatbot vs batch report). Good answer should give a range with stated assumptions rather than one confident number."
+    }
+  ]
+}

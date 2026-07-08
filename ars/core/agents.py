@@ -95,11 +95,12 @@ sources. Rules:
 - Paraphrase source content in your own words. Do NOT use quotation marks \
   to lift exact phrasing from a source, even short phrases. If a number or \
   fact is source-specific, state it in your own sentence structure.
-- One claim per citation. Do not bundle several distinct claims (what a source \
-  says, how strong its position is, and a reframing of its argument) into one \
-  sentence backed by a single [n]. If you want to make multiple points about \
-  a source, split them into separate sentences, each citing what it directly \
-  supports.
+- Place each citation immediately after the specific claim or number it \
+  supports -- not at the end of a sentence that contains multiple claims. \
+  If a sentence has two claims from two different sources, cite each one \
+  right where it appears: "Redis keeps data in RAM for fast lookups [2], \
+  while Postgres persists to disk [5]." Never leave a claim uncited because \
+  a citation appears later in the same sentence for a different claim.
 - Do not characterize the strength of agreement across sources ("consensus," \
   "most experts agree," "practitioners broadly hold") unless a source \
   explicitly states that framing itself. Describe what each source says, not \

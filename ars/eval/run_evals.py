@@ -138,6 +138,10 @@ async def run_eval(limit: int | None = None) -> dict:
                 "category": item["category"],
                 "answer": answer,
                 "num_sources": len(contexts),
+                "sources": [
+                    {"title": s["title"], "url": s["url"]}
+                    for s in state.get("sources", [])
+                ],
                 "faithfulness": score,
             }
         )

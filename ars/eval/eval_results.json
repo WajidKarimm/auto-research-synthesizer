@@ -1,9 +1,9 @@
 {
-  "run_at": "2026-07-05T13:57:32.112844+00:00",
-  "num_questions": 3,
-  "num_scored": 3,
-  "num_failed_to_score": 0,
-  "average_faithfulness": 0.8705,
+  "run_at": "2026-07-05T14:53:24.069157+00:00",
+  "num_questions": 15,
+  "num_scored": 11,
+  "num_failed_to_score": 4,
+  "average_faithfulness": 0.869,
   "threshold": 0.8,
   "passed": true,
   "results": [
@@ -11,25 +11,615 @@
       "id": "q01",
       "question": "What are the tradeoffs of pgvector vs Pinecone for a small-scale RAG system?",
       "category": "comparison",
-      "answer": "For a Retrieval\u2011Augmented Generation system that only needs to store a few million embeddings, the extension that lives inside PostgreSQL is usually the simpler choice. The blog that compared four vector stores notes that pgvector is the default for most builds because it runs within an existing Postgres instance and can handle around two million vectors without any special tuning, eliminating the need for a separate managed service\u202f[1]. This integration means that the same database can hold both the relational data and the vectors, which keeps infrastructure minimal.\n\nWhen it comes to query speed, pgvector can actually be faster than Pinecone at modest scales. Benchmarks that used a 50\u2011million\u2011embedding dataset reported that PostgreSQL with pgvector (and the optional pgvectorscale accelerator) achieved a p95 latency roughly twenty\u2011eight times lower than Pinecone for approximate\u2011nearest\u2011neighbor searches\u202f[2]. Pinecone\u2019s advertised sub\u201120\u202fms p95 latency is only observed when the index contains more than five million vectors, suggesting that its latency advantage does not materialize for smaller collections\u202f[1].\n\nThe operational and cost picture also diverges. Because pgvector is open source and runs on the same host as the rest of the application, it avoids the subscription fees of a managed service; a Supabase Postgres instance with pgvector can be three to eight times cheaper than an equivalent Pinecone deployment at the same vector count\u202f[1][5]. Pinecone, however, offers a fully managed cloud offering that removes the need to provision, monitor, and tune a database, which can be attractive for teams that prefer to offload that work. A drawback of Pinecone highlighted by users is its strict metadata limits, which often force a two\u2011step workflow\u2014first a vector lookup in Pinecone, then a separate query to the primary database to fetch the associated records\u202f[7].\n\nOverall, for a small\u2011scale RAG application the trade\u2011off leans toward pgvector: it provides adequate latency, lower cost, and a unified stack, while Pinecone\u2019s managed service and high\u2011throughput design become worthwhile only when the system grows to tens of millions of vectors or requires the guaranteed millisecond\u2011scale performance that a dedicated vector store can deliver\u202f[6].",
+      "answer": "For a small\u2011scale Retrieval\u2011Augmented Generation (RAG) system, pgvector is often the more practical choice because it can be added to an existing PostgreSQL instance, removing the need for a separate managed service and handling on the order of two million vectors without any special tuning\u202f[1]. By contrast, Pinecone delivers sub\u201120\u202fms p95 latency only once the index grows beyond five million vectors, and its pricing is reported to be three to eight times higher than a comparable Supabase\u2011hosted PostgreSQL deployment at the same vector count\u202f[1].\n\nIn terms of raw query speed, a PostgreSQL setup that includes pgvector (and the optional pgvectorscale extension) has been shown to achieve dramatically lower p95 latency\u2014about twenty\u2011eight times lower\u2014while preserving high recall on approximate nearest\u2011neighbor searches\u202f[2]. For workloads under roughly fifty million vectors, PostgreSQL\u202f+\u202fpgvector matches Pinecone\u2019s latency while beating it on cost, operational simplicity, and query flexibility\u202f[8]; Pinecone\u2019s latency advantage only becomes clear at larger scales.\n\nOperationally, using pgvector means staying within the familiar Postgres ecosystem, but vector search is a bolt\u2011on feature that can introduce extra complexity and overhead even for modest workloads\u202f[3]. Pinecone, being purpose\u2011built for vector workloads, offers a zero\u2011ops experience and seamless scaling, yet it imposes strict metadata limits that often force a two\u2011step workflow\u2014first retrieving vectors from Pinecone, then fetching the associated records from the primary database\u202f[4].\n\nCost considerations further favor pgvector for small deployments. Pinecone charges per\u2011query fees (approximately $0.096 per thousand queries) and additional fees for index size, whereas a self\u2011hosted pgvector installation incurs no per\u2011query charges and leverages existing database infrastructure\u202f[5]. Pinecone\u2019s advantages\u2014high sustained QPS, multi\u2011region replication, and minimal operational burden\u2014generally only outweigh these drawbacks when the system exceeds roughly one hundred million vectors\u202f[8].",
       "num_sources": 8,
-      "faithfulness": 0.96875
+      "sources": [
+        {
+          "title": "pgvector vs Pinecone vs Qdrant vs Weaviate (2026)",
+          "url": "https://www.kalviumlabs.ai/blog/vector-databases-compared-pgvector-pinecone-qdrant-weaviate"
+        },
+        {
+          "title": "Pgvector vs. Pinecone: Vector Database Comparison",
+          "url": "https://www.tigerdata.com/blog/pgvector-vs-pinecone"
+        },
+        {
+          "title": "Pinecone vs. Postgres pgvector: For vector search, easy ...",
+          "url": "https://www.pinecone.io/blog/pinecone-vs-pgvector"
+        },
+        {
+          "title": "Why we replaced Pinecone with PGVector - Confident AI",
+          "url": "https://www.confident-ai.com/blog/why-we-replaced-pinecone-with-pgvector"
+        },
+        {
+          "title": "pgvector vs Pinecone Cost Comparison",
+          "url": "https://contextualaisystems.com/blog/pgvector-vs-pinecone-cost-comparison"
+        },
+        {
+          "title": "pgvector vs Pinecone: Which Vector Database to Choose in 2026",
+          "url": "https://encore.dev/articles/pgvector-vs-pinecone"
+        },
+        {
+          "title": "When Self Hosting Vector Databases Becomes Cheaper Than SaaS",
+          "url": "https://openmetal.io/resources/blog/when-self-hosting-vector-databases-becomes-cheaper-than-saas"
+        },
+        {
+          "title": "Postgres + pgvector vs Pinecone: A Production Benchmark ...",
+          "url": "https://justsoftlab.com/insights/postgres-pgvector-vs-pinecone-production-benchmark"
+        }
+      ],
+      "faithfulness": 0.8823529411764706
     },
     {
       "id": "q02",
       "question": "What is HNSW indexing and how does it work?",
       "category": "factual",
-      "answer": "Hierarchical Navigable Small World (HNSW) indexing is a graph\u2011based technique for approximate nearest\u2011neighbor retrieval that operates on high\u2011dimensional floating\u2011point vectors\u202f[3]. It is widely recognized as a leading solution for vector similarity search, offering very fast query execution while maintaining strong recall\u202f[2].\n\nThe method constructs a multi\u2011layer hierarchy in which each layer forms a navigable small\u2011world graph that contains a subset of the dataset\u202f[4]. A query begins at the highest layer and proceeds downward, following the graph\u2019s edges to quickly converge on a neighborhood of vectors similar to the query point\u202f[3]. The maximum number of edges a node may keep at a given level is controlled by a parameter often called\u202fM, and the number of candidate neighbors examined during search is governed by a parameter\u202fef, which together balance memory usage, insertion cost, and search accuracy\u202f[1].\n\nDuring index construction, new points are linked to existing nodes based on proximity, creating both short\u2011range connections for local clustering and long\u2011range shortcuts\u2014a design that stems from the probability skip\u2011list concept and the properties of navigable small\u2011world graphs\u202f[2]. This graph\u2011based structure enables approximate neighbor discovery far more quickly than exhaustive scanning, especially in large collections of high\u2011dimensional data\u202f[6]. In practice, systems such as Milvus create an HNSW index by invoking an\u202fadd_index\u202froutine and specifying the index type together with parameters like\u202fM\u202fand\u202fef\u202fto tune performance\u202f[1].",
+      "answer": "Hierarchical Navigable Small World (HNSW) indexing is an algorithm designed for approximate nearest\u2011neighbor (ANN) search that represents each data vector as a vertex in a graph and connects it to a selection of nearby vertices\u202f[1]. The graph is organized into multiple layers, with the search beginning at the highest, sparsely populated layer and progressively moving to denser lower layers until a set of likely nearest neighbors is identified\u202f[1].\n\nWhen the index is built, every vector is assigned a \u201clevel\u201d drawn from an exponential distribution; only a few vectors appear in the upper layers while all vectors are present in the base layer\u202f[4]. This random\u2011level assignment creates a hierarchical proximity\u2011graph where each layer contains a navigable small\u2011world structure, allowing short\u2011cut edges that span large distances in the vector space.\n\nA query proceeds by starting at an entry point in the top layer and performing greedy routing: the algorithm follows edges that lead to nodes increasingly closer to the query vector, stopping when no neighbor improves the distance\u202f[4]. It then descends to the next lower layer and repeats the greedy descent, finally reaching layer\u202f0 where a bounded beam search (or continued greedy steps) refines the candidate set, yielding near\u2011logarithmic search complexity with high recall and millisecond\u2011scale latency\u202f[4].\n\nThe efficiency of HNSW stems from two key ideas highlighted by implementations: a probability\u2011based skip\u2011list mechanism that determines the level of each node, and the use of navigable small\u2011world graphs that provide short\u2011cut connections across the space\u202f[2]. Together these techniques give HNSW its reputation as a top\u2011performing, graph\u2011based index for fast ANN retrieval in high\u2011dimensional datasets\u202f[6].",
       "num_sources": 8,
+      "sources": [
+        {
+          "title": "Hierarchical navigable small world - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hierarchical_navigable_small_world"
+        },
+        {
+          "title": "Hierarchical Navigable Small Worlds (HNSW) - Pinecone",
+          "url": "https://www.pinecone.io/learn/series/faiss/hnsw"
+        },
+        {
+          "title": "Introduction to HNSW: Hierarchical Navigable Small World",
+          "url": "https://www.analyticsvidhya.com/blog/2023/10/introduction-to-hnsw-hierarchical-navigable-small-world"
+        },
+        {
+          "title": "The Shortcut Through Space \u2014 Hierarchical Navigable Small Worlds (HNSW) in Vector Search \u2014 Part 1",
+          "url": "https://medium.com/@adnanmasood/the-shortcut-through-space-hierarchical-navigable-small-worlds-hnsw-in-vector-search-4df5aa755100"
+        },
+        {
+          "title": "Approximate nearest neighbor search using HNSW index",
+          "url": "https://docs.vespa.ai/en/querying/approximate-nn-hnsw.html"
+        },
+        {
+          "title": "Faster Vector Searches with Approximate Nearest Neighbor index",
+          "url": "https://community.intersystems.com/post/faster-vector-searches-approximate-nearest-neighbor-index-now-available-vector-search-early"
+        },
+        {
+          "title": "hnsw-lite - PyPI",
+          "url": "https://pypi.org/project/hnsw-lite"
+        },
+        {
+          "title": "nmslib/hnswlib: Header-only C++/python library for fast approximate ...",
+          "url": "https://github.com/nmslib/hnswlib"
+        }
+      ],
       "faithfulness": 1.0
     },
     {
       "id": "q03",
       "question": "Is RAG becoming obsolete now that LLMs support very long context windows?",
       "category": "trap_contradiction",
-      "answer": "Recent evaluations show that the newest large\u2011language models with very large context windows often surpass retrieval\u2011augmented generation on standard question\u2011answering tasks. One study found that the performance gap between long\u2011context (LC) models and RAG grew larger for the most recent models such as GPT\u20114O and Gemini\u20111.5\u2011Pro, indicating a strong ability of these models to understand extended inputs. However, the same work also reported that on two of the longer \u221eBench datasets (En.QA and En.MC) the older GPT\u20113.5\u2011Turbo model performed better with RAG than with a pure long\u2011context approach, suggesting that the advantage of LC is not universal. A separate benchmark analysis concluded that LC generally outperforms RAG on Wikipedia\u2011style question\u2011answering, while summarization\u2011based retrieval can match LC and chunk\u2011based retrieval lags behind.  \n\nDespite these advantages for LC, RAG retains distinct benefits that keep it relevant. Because the retrieval component can be updated independently of the language model, RAG is especially suited to dynamic or evolving corpora where the knowledge base changes more rapidly than the model itself can be retrained. Moreover, the same comparative study highlighted trade\u2011offs between cost and performance, noting that RAG can be cheaper to run when only a small subset of a massive document needs to be processed. Practitioners also observe that feeding an entire multi\u2011page document into a model, even with a huge context window, still requires careful prompt engineering, whereas RAG\u2019s selective retrieval simplifies the workflow and often yields more accurate answers.  \n\nCommunity discussion reflects a similar view: participants in a machine\u2011learning forum expressed the expectation that RAG will not lose relevance as context windows expand. An industry blog echoed this sentiment, describing how data scientists first try a long\u2011context prompt but still resort to a RAG pipeline when dealing with legal or procurement documents, because the retrieval\u2011based approach remains powerful and proven.  \n\nOverall, while long\u2011context LLMs have narrowed the performance gap and can handle entire documents in a single pass, RAG is not obsolete; it continues to offer advantages for cost efficiency, handling of constantly changing data, and simplifying the prompting process.",
+      "answer": "Recent empirical work shows that extending a model\u2019s context window usually yields higher accuracy than relying on retrieval\u2011augmented generation, especially for the newest large language models.  Benchmarks that test question answering over Wikipedia\u2011scale material report that long\u2011context (LC) prompting outperforms RAG across most metrics, while a summarization\u2011based retrieval strategy can come close but a simple chunk\u2011based retriever lags behind\u202f[3].  The advantage of LC becomes even more pronounced for the latest models such as GPT\u20114\u2011O and Gemini\u20111.5\u2011Pro, where the performance gap widens; however, on two of the longest \u221eBench datasets (En.QA and En.MC) the older GPT\u20113.5\u2011Turbo still benefits more from RAG than from LC\u202f[1].\n\nFrom an engineering standpoint, feeding an entire document into a very large context window eliminates the need for complex prompt engineering and preprocessing pipelines, which many practitioners find attractive\u202f[2].  At the same time, RAG continues to offer cost and scalability benefits because it retrieves only the most relevant passages, keeping token usage low and avoiding the tendency of some newer models to refuse answers when forced to rely on retrieved text\u202f[1].  These trade\u2011offs mean that long\u2011context prompting is not a universal replacement for retrieval, particularly when documents exceed the practical limits of even expanded windows or when budget constraints favor selective access.\n\nCommentary in the community reflects a split view: some observers suggest that larger windows and fine\u2011tuning on proprietary data could render RAG unnecessary\u202f[6], yet other analyses argue that retrieval has simply evolved rather than disappeared.  The emergence of autonomous agents and the continued emphasis on intelligent retrieval pipelines indicate that RAG remains a core component for many enterprise applications, even as context windows grow\u202f[7].  Consequently, while long\u2011context models often deliver higher raw performance, RAG is not obsolete and still provides distinct advantages in cost, scalability, and handling of extremely long or dynamic knowledge sources.",
       "num_sources": 8,
-      "faithfulness": 0.6428571428571429
+      "sources": [
+        {
+          "title": "[PDF] Retrieval Augmented Generation or Long-Context LLMs? A ...",
+          "url": "https://aclanthology.org/2024.emnlp-industry.66.pdf"
+        },
+        {
+          "title": "With Context Windows Expanding So Rapidly, Is RAG ...",
+          "url": "https://www.dataiku.com/stories/blog/is-rag-obsolete"
+        },
+        {
+          "title": "Long Context vs. RAG for LLMs: An Evaluation and Revisits - arXiv",
+          "url": "https://arxiv.org/html/2501.01880v1"
+        },
+        {
+          "title": "Context Windows and RAG in Large Language Models",
+          "url": "https://yourgpt.ai/blog/general/long-context-window-vs-rag"
+        },
+        {
+          "title": "RAG vs. long-context LLMs: A side-by-side comparison | Meilisearch",
+          "url": "https://www.meilisearch.com/blog/rag-vs-long-context-llms"
+        },
+        {
+          "title": "RAG is dead - or is it? | IntraFind",
+          "url": "https://intrafind.com/en/blog/rag-is-dead-or-not"
+        },
+        {
+          "title": "RAG is Dead, Long Live RAG: Retrieval in the Age of Agents - LightOn",
+          "url": "https://lighton.ai/lighton-blogs/rag-is-dead-long-live-rag-retrieval-in-the-age-of-agents"
+        },
+        {
+          "title": "Is RAG becoming obsolete with the rise of Long Context models?",
+          "url": "https://www.facebook.com/groups/698593531630485/posts/1222390602584106"
+        }
+      ],
+      "faithfulness": 0.5666666666666667
+    },
+    {
+      "id": "q04",
+      "question": "What is the best vector database for a RAG system?",
+      "category": "ambiguous",
+      "answer": "Vector databases sit at the core of any Retrieval\u2011Augmented Generation (RAG) pipeline because they enable fast, semantically\u2011aware look\u2011ups that turn raw embeddings into the contextual facts a language model needs\u202f[1].  However, the market does not offer a single \u201cbest\u201d product; the optimal choice hinges on the specific workload, the depth of filtering required, and whether the system must combine vector search with traditional transactional data\u202f[2].\n\nAmong the options that repeatedly surface as top picks, Pinecone is highlighted as the leading managed service for teams that prioritize zero\u2011ops deployment and out\u2011of\u2011the\u2011box reliability\u202f[5].  For organizations that prefer an open\u2011source stack and want tighter control over cost and performance, Qdrant is frequently recommended as the best open\u2011source alternative\u202f[5].  Other databases such as Weaviate, Milvus, and ApertureDB are noted for particular strengths\u2014Weaviate for its built\u2011in metadata filtering, Milvus for high\u2011throughput similarity search, and ApertureDB for full ACID support across multimodal and graph\u2011structured data\u202f[4].\n\nChoosing the most suitable vector store therefore involves matching the system\u2019s needs against a set of criteria that include retrieval quality, filtering capabilities, hybrid search support, scalability, operational overhead, security posture, and cost model\u202f[2].  Additional practical considerations such as open\u2011source licensing, CRUD APIs, distributed architecture, replica handling, and active maintenance also play a decisive role in production\u2011grade RAG deployments\u202f[6].  In short, the \u201cbest\u201d vector database is the one that aligns with these functional and operational requirements rather than a single universally superior product.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "The 6 Best Vector Database Solutions for RAG Applications | GigaSpaces AI",
+          "url": "https://www.gigaspaces.com/blog/best-vector-database-solutions-for-rag-applications"
+        },
+        {
+          "title": "Best Vector Databases for RAG: Top Picks for 2026 - TiDB",
+          "url": "https://www.pingcap.com/compare/best-vector-database"
+        },
+        {
+          "title": "We Tried and Tested 10 Best Vector Databases for RAG ...",
+          "url": "https://www.zenml.io/blog/vector-databases-for-rag"
+        },
+        {
+          "title": "A Quick Comparison of Vector Databases for RAG Systems - AI accuracy intelligence for finding accuracy failures, guiding expert review, validating fixes, and turning lessons into reusable quality memory.",
+          "url": "https://dataframer.ai/posts/comparison-of-vector-databases-for-retrieval-augmented-generation-rag-systems"
+        },
+        {
+          "title": "Best Vector Databases for RAG 2026: Top 7 Picks",
+          "url": "https://alphacorp.ai/blog/best-vector-databases-for-rag-2026-top-7-picks"
+        },
+        {
+          "title": "Optimizing RAG: A Guide to Choosing the Right Vector ...",
+          "url": "https://medium.com/@mutahar789/optimizing-rag-a-guide-to-choosing-the-right-vector-database-480f71a33139"
+        },
+        {
+          "title": "5 Vector DBs to Improve RAGs | Coralogix",
+          "url": "https://coralogix.com/ai-blog/best-vector-dbs-for-retrieval-augmented-generation-rag"
+        },
+        {
+          "title": "Vector Databases for RAG - IBM",
+          "url": "https://www.ibm.com/think/topics/rag-vector-database"
+        }
+      ],
+      "faithfulness": 0.8620689655172413
+    },
+    {
+      "id": "q05",
+      "question": "What is semantic caching and how does it reduce LLM inference costs?",
+      "category": "factual",
+      "answer": "Semantic caching is a method for accelerating large language model (LLM) services by keeping previously generated answers indexed by the meaning of the original request rather than by the exact text. When a user submits a prompt, the system converts it into a high\u2011dimensional vector embedding that captures its semantic intent, and then searches a cache of stored embeddings for the most similar entries. If a close match is found, the cached response is returned instead of invoking the LLM again\u202f[1][4].\n\nThe process works by intercepting each incoming query, generating its embedding, and performing a vector similarity lookup against the cache. A similarity score determines whether the cached answer is sufficiently aligned with the new query\u2019s intent; when the score meets a predefined threshold, the system reuses the stored completion, thereby avoiding a fresh inference pass\u202f[1][5].\n\nBecause many users phrase the same question in different ways, traditional caches that rely on exact string matches miss most of these opportunities. By matching on meaning, semantic caching can eliminate a large fraction of redundant LLM calls, which directly cuts the compute that must be performed. Reported results show cost reductions of as much as 86\u202f% and latency improvements of roughly 88\u202f% in production workloads, making the approach a key optimization layer for high\u2011traffic enterprise applications\u202f[5][2].\n\nIn sum, semantic caching replaces literal cache keys with vector\u2011based representations, reuses prior completions for semantically equivalent prompts, and therefore lowers the number of expensive inference operations, delivering both economic and performance benefits for LLM\u2011driven services\u202f[2][4].",
+      "num_sources": 6,
+      "sources": [
+        {
+          "title": "What is Semantic Caching?",
+          "url": "https://wso2.com/library/blogs/what-is-semantic-caching"
+        },
+        {
+          "title": "Semantic Caching: Boost LLM Speed & Reduce Costs - Truefoundry",
+          "url": "https://www.truefoundry.com/blog/semantic-caching"
+        },
+        {
+          "title": "What is Semantic Caching For LLMs? | GigaSpaces AI",
+          "url": "https://www.gigaspaces.com/data-terms/semanticaching-for-llms"
+        },
+        {
+          "title": "Semantic Cache for Large Language Models - Azure Cosmos DB | Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/azure/cosmos-db/gen-ai/semantic-cache"
+        },
+        {
+          "title": "Semantic Caching: a Solution to Exploding LLM Costs | by Nicolas de Place | Medium",
+          "url": "https://ndeplace.medium.com/semantic-caching-a-solution-to-exploding-llm-costs-d16e7d197795"
+        },
+        {
+          "title": "Cut Your LLM Costs and Latency up to 86% with Semantic Caching",
+          "url": "https://www.youtube.com/watch?v=vIgF4GP2n9w"
+        }
+      ],
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q06",
+      "question": "Does increasing chunk size always improve RAG retrieval accuracy?",
+      "category": "trap_contradiction",
+      "answer": "Increasing the chunk size does not automatically raise retrieval accuracy in Retrieval\u2011Augmented Generation systems.  The size must balance how much context is retained against how precisely a retriever can match a query, and the best setting varies with the task.  For fact\u2011oriented questions, short segments of roughly one to two hundred tokens tend to work well, while tasks that need broader context may benefit from chunks up to five hundred tokens, but only if the model can handle that length\u202f[1].\n\nEmpirical tests show that making chunks larger can actually reduce relevance.  One Reddit experiment reported that 256\u2011token chunks consistently produced higher precision than 384\u2011token chunks, which tended to dilute the relevance of retrieved passages\u202f[2].  A multi\u2011dataset analysis confirmed that the optimal size depends on the nature of the data and the embedding model: concise, fact\u2011based datasets performed best with 64\u2013128\u2011token chunks, whereas longer\u2011form material required 512\u20131024\u2011token chunks, and some models (e.g., Stella) favored the larger windows while others (e.g., Snowflake) excelled with smaller ones\u202f[4].\n\nNevertheless, larger chunks can be advantageous in certain settings.  An evaluation using LlamaIndex found that a size of 1024 tokens struck a useful compromise between response latency and answer quality, suggesting that a bigger window can improve overall system performance when the downstream model can process it\u202f[3].  Another Reddit discussion noted that increasing chunk size helps capture the intended semantic meaning, preventing the loss of context that occurs with overly fine\u2011grained splits\u202f[8].  Overall, the evidence indicates that bigger chunks are not a universal remedy; the ideal size must be chosen based on the specific query type, dataset characteristics, and the capabilities of the retrieval model.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "What is the optimal chunk size for RAG applications?",
+          "url": "https://milvus.io/ai-quick-reference/what-is-the-optimal-chunk-size-for-rag-applications"
+        },
+        {
+          "title": "I tested different chunks sizes and retrievers for RAG and ...",
+          "url": "https://www.reddit.com/r/Rag/comments/1ov0pzk/i_tested_different_chunks_sizes_and_retrievers"
+        },
+        {
+          "title": "Evaluating the Ideal Chunk Size for a RAG System using LlamaIndex",
+          "url": "https://www.llamaindex.ai/blog/evaluating-the-ideal-chunk-size-for-a-rag-system-using-llamaindex-6207e5d3fec5"
+        },
+        {
+          "title": "Rethinking Chunk Size for Long-Document Retrieval",
+          "url": "https://arxiv.org/html/2505.21700v2"
+        },
+        {
+          "title": "Chunk Size Matters",
+          "url": "https://www.mattambrogi.com/posts/chunk-size-matters"
+        },
+        {
+          "title": "Evaluating the Optimal Document Chunk Size for a RAG Application | by Harshad | Medium",
+          "url": "https://harshadsuryawanshi.medium.com/evaluating-the-optimal-document-chunk-size-for-a-rag-application-9cb482365bbf"
+        },
+        {
+          "title": "Chunk Twice, Retrieve Once: RAG Chunking Strategies ...",
+          "url": "https://infohub.delltechnologies.com/p/chunk-twice-retrieve-once-rag-chunking-strategies-optimized-for-different-content-types"
+        },
+        {
+          "title": "Increasing your chunk size solves lots of problems - the default 1024 ...",
+          "url": "https://www.reddit.com/r/Rag/comments/1r36f72/increasing_your_chunk_size_solves_lots_of"
+        }
+      ],
+      "faithfulness": 0.8695652173913043
+    },
+    {
+      "id": "q07",
+      "question": "LangGraph vs CrewAI vs AutoGen: which is best for building multi-agent systems?",
+      "category": "comparison",
+      "answer": "LangGraph is designed around explicit state management and structured workflow execution. It runs agent pipelines by using reducers, typed state objects and checkpointing, which lets developers route conditionally, run steps in parallel and recover from failures\u202f[2]. The library also supports human\u2011in\u2011the\u2011loop supervision, planning and consensus reasoning, and it builds on LangChain to give a graph\u2011based composition model where nodes transform a persistent state across LLM calls\u202f[3].\n\nCrewAI takes a role\u2011oriented view of multi\u2011agent collaboration. It treats a set of agents as a \u201ccrew\u201d in which each participant has a defined role, goal and backstory, and the framework orchestrates their interactions much like a human team\u202f[4]. This role\u2011based orchestration is highlighted as a core differentiator from other frameworks.\n\nAutoGen is presented as another open\u2011source option with its own orchestration and workflow design philosophy. The comparison with CrewAI notes that the two differ in how they structure workflows, the style of prompting they encourage, and the level of built\u2011in human\u2011in\u2011the\u2011loop support they provide\u202f[4]. A ZenML blog also suggests that LangGraph and AutoGen can be combined to leverage the strengths of both, implying that AutoGen brings capabilities that complement LangGraph\u2019s stateful graph approach\u202f[1].\n\nNone of the sources declares a single framework as universally superior. LangGraph appears strongest when precise state handling, checkpointing and debugging of complex, conditional pipelines are required. CrewAI is preferable for scenarios that benefit from a clear, role\u2011based team metaphor and structured crew coordination. AutoGen offers an alternative orchestration style and may be advantageous when its prompting and human\u2011in\u2011the\u2011loop features align with project needs. The best choice therefore depends on which of these characteristics matches the intended multi\u2011agent system.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "Agno vs LangGraph: Best Framework to Build Multi-Agent Systems - ZenML Blog",
+          "url": "https://www.zenml.io/blog/agno-vs-langgraph"
+        },
+        {
+          "title": "Multi-Agent Systems with LangGraph",
+          "url": "https://www.coursera.org/learn/multi-agent-systems-with-langgraph"
+        },
+        {
+          "title": "Building Multi-Agent Systems with LangGraph - Medium",
+          "url": "https://medium.com/cwan-engineering/building-multi-agent-systems-with-langgraph-04f90f312b8e"
+        },
+        {
+          "title": "CrewAI vs AutoGen: Which One Is the Best Framework to Build AI ...",
+          "url": "https://www.zenml.io/blog/crewai-vs-autogen"
+        },
+        {
+          "title": "AutoGen vs CrewAI vs LangGraph Which Multi-Agent AI ... - YouTube",
+          "url": "https://www.youtube.com/watch?v=bLzDkas_Tys"
+        },
+        {
+          "title": "Autogen vs LangChain vs CrewAI | *instinctools",
+          "url": "https://www.instinctools.com/blog/autogen-vs-langchain-vs-crewai"
+        },
+        {
+          "title": "LangGraph vs Autogen vs CrewAI, which to choose? | Rahul Agarwal",
+          "url": "https://www.linkedin.com/posts/thescholarbaniya_langgraph-vs-autogen-vs-crewai-which-to-activity-7384811652489043968-t9k_"
+        },
+        {
+          "title": "First hand comparison of LangGraph, CrewAI and AutoGen - Aaron Yu",
+          "url": "https://aaronyuqi.medium.com/first-hand-comparison-of-langgraph-crewai-and-autogen-30026e60b563"
+        }
+      ],
+      "faithfulness": 1.0
+    },
+    {
+      "id": "q08",
+      "question": "Redis vs Postgres for caching LLM responses: what are the tradeoffs?",
+      "category": "comparison",
+      "answer": "Redis delivers the quickest round\u2011trip times because it keeps every entry in RAM, which lets it read and write data orders of magnitude faster than a system that must touch disk storage.  A direct comparison of storing a JSON blob showed Redis outpacing PostgreSQL, and the speed gap is explained by Redis\u2019s in\u2011memory design versus PostgreSQL\u2019s disk\u2011based engine\u202f[8][7].  \n\nThe durability of the store is the opposite side of that trade\u2011off.  Redis\u2019s data is volatile; if the process stops or the machine reboots the cache is lost, making it well suited for short\u2011lived \u201cworking memory\u201d that an LLM agent needs for the current task.  PostgreSQL, by contrast, writes to persistent storage and can maintain relational integrity, so it is a natural fit for longer\u2011term \u201cepisodic\u201d or \u201csemantic\u201d memory that must survive restarts\u202f[4][3].  \n\nBeyond simple key\u2011value lookups, PostgreSQL can host more sophisticated caching logic.  Extensions such as\u202fpg_semantic_cache embed vector representations of queries and retrieve cached answers based on meaning, delivering results in milliseconds while staying inside the database.  Redis does not provide built\u2011in semantic matching, so any such capability must be built at the application layer\u202f[5][2].  \n\nFinally, performance comparisons that rely on default configurations can be misleading, because both systems need appropriate memory sizing to reflect real\u2011world workloads.  Tuning PostgreSQL\u2019s shared buffers or Redis\u2019s maxmemory setting is essential for a fair benchmark, and with proper configuration PostgreSQL can achieve near\u2011millisecond response times that rival dedicated memory caches\u202f[1][6].",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "Redis is fast \u2013 I'll cache in Postgres | Hacker News",
+          "url": "https://news.ycombinator.com/item?id=45380699"
+        },
+        {
+          "title": "pg_semantic_cache Caches LLM Answers for Faster Responses",
+          "url": "https://www.linkedin.com/posts/pgedge_postgres-postgresql-opensource-activity-7465101878243037184-UaGQ"
+        },
+        {
+          "title": "Agent State Management: Redis vs Postgres for AI Memory - SitePoint",
+          "url": "https://www.sitepoint.com/state-management-for-long-running-agents-redis-vs-postgres"
+        },
+        {
+          "title": "Cache vs Database: Understanding the Tradeoffs - LinkedIn",
+          "url": "https://www.linkedin.com/posts/sameer-bhardwaj1298_if-cache-is-faster-than-database-why-not-activity-7442196733675253760-a8wC"
+        },
+        {
+          "title": "Semantic Caching in PostgreSQL: A Hands-On Guide to pg_semantic_cache",
+          "url": "https://www.pgedge.com/blog/semantic-caching-in-postgresql-a-hands-on-guide-to-pg_semantic_cache"
+        },
+        {
+          "title": "Postgres as a Distributed Cache Unlocks Speed and Simplicity for ...",
+          "url": "https://techcommunity.microsoft.com/blog/azuredevcommunityblog/postgres-as-a-distributed-cache-unlocks-speed-and-simplicity-for-modern-net-work/4462139"
+        },
+        {
+          "title": "How much faster is Redis at storing a blob of JSON compared to Postgres?",
+          "url": "https://news.ycombinator.com/item?id=21136534"
+        },
+        {
+          "title": "Please explain why calling Redis Is faster than calling Postgres?",
+          "url": "https://www.reddit.com/r/webdev/comments/1fexynu/please_explain_why_calling_redis_is_faster_than"
+        }
+      ],
+      "faithfulness": 0.8181818181818182
+    },
+    {
+      "id": "q09",
+      "question": "How is the RAGAS faithfulness metric computed?",
+      "category": "factual",
+      "answer": "The faithfulness metric in RAGAS quantifies how factually consistent a generated answer is with the documents that were retrieved for the query. It treats an answer as faithful only when every claim it contains can be derived from the supplied context\u202f[1].  \n\nTo compute the score, the system first breaks the answer into a list of individual claims or statements. Each claim is then examined against the retrieved context to decide whether the context supplies enough information to infer that claim. A language\u2011model based verifier is typically used for this cross\u2011checking step\u202f[1]. The final faithfulness value is obtained by aggregating the results, usually as the proportion of claims that are judged inferable from the context\u202f[4][5].  \n\nIn practice the metric is accessed through a function such as\u202fascore, which receives the original user question, the model\u2019s response, and the set of retrieved passages. The function returns a numeric score that reflects the fraction of statements that passed the inference test\u202f[3][6]. The underlying implementation defines fields for the question, answer, list of statements, context, and a reason for each verdict, and it applies the same claim\u2011verification logic described above\u202f[2].",
+      "num_sources": 6,
+      "sources": [
+        {
+          "title": "Faithfulness | Ragas",
+          "url": "https://docs.ragas.io/en/v0.1.21/concepts/metrics/faithfulness.html"
+        },
+        {
+          "title": "ragas/src/ragas/metrics/_faithfulness.py at main \u00b7 vibrantlabsai/ragas \u00b7 GitHub",
+          "url": "https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_faithfulness.py"
+        },
+        {
+          "title": "Faithfulness - Ragas",
+          "url": "https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness"
+        },
+        {
+          "title": "RAGAS for RAG in LLMs: A Comprehensive Guide to Evaluation ...",
+          "url": "https://dkaarthick.medium.com/ragas-for-rag-in-llms-a-comprehensive-guide-to-evaluation-metrics-3aca142d6e38"
+        },
+        {
+          "title": "Harnessing the Power of LLM Evaluation with RAGAS | Neurealm",
+          "url": "https://www.neurealm.com/blogs/harnessing-the-power-of-llm-evaluation-with-ragas-a-comprehensive-guide"
+        },
+        {
+          "title": "Faithfulness - Ragas",
+          "url": "https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/faithfulness"
+        }
+      ],
+      "faithfulness": 0.6666666666666666
+    },
+    {
+      "id": "q10",
+      "question": "How much does it cost to run a RAG pipeline in production?",
+      "category": "ambiguous",
+      "answer": "Running a Retrieval\u2011Augmented Generation (RAG) pipeline in production typically involves both recurring monthly expenses and, depending on the approach, a one\u2011time build or integration fee.  If a team opts for a managed service such as Pinecone Assistant, AWS Bedrock Knowledge Bases, Azure AI Search, or Vertex AI Search, the tooling cost is usually a few hundred dollars per month at a minimum viable product scale and rises to a few thousand dollars per month once the system is in full production; estimates range from about $500 to $5,000 per month at MVP scale and from $2,000 to $15,000 per month at production scale.  In addition, integrating the service often requires one to three weeks of specialist work, which translates to a one\u2011time outlay of roughly $15,000 to $40,000\u202f[1].  For organizations that build their own pipeline with a vector database, embedding models, retrieval logic, and reranking, the upfront engineering cost is higher\u2014typically between $30,000 and $120,000\u2014while the ongoing infrastructure spend is lower, generally falling between $300 and $2,000 each month\u202f[1].\n\nBeyond these headline figures, the total cost per query is the sum of several layers: the expense of generating embeddings, the storage and retrieval of those vectors, the cost of the vector\u2011database operations, and the inference cost of the large language model that produces the final answer.  These components together make RAG pipelines more complex to budget than a plain LLM call\u202f[2].  Real\u2011world deployments often reveal hidden cost drivers that can cause the bill to grow faster than usage.  For example, changing the chunking strategy forces a full re\u2011index of the corpus, incurring additional fees; increasing the number of retrieved documents (the \u201ck\u2011value\u201d) can triple token consumption; and vector\u2011database pricing can jump non\u2011linearly once the index exceeds five to ten million vectors.  One case study reported an initial monthly cost of about $140, which later rose four to six times as the system scaled and these hidden factors accumulated\u202f[3].\n\nTaken together, a production\u2011grade RAG pipeline can cost anywhere from a few hundred dollars per month for a modest, self\u2011hosted setup to several thousand dollars per month for a managed service, plus any upfront engineering or integration spend.  Organizations should therefore budget for both the visible monthly tooling fees and the less obvious expenses that arise from re\u2011indexing, retrieval\u2011count adjustments, vector\u2011database tier thresholds, and the labor required to monitor and evaluate the system over time.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "RAG Pipeline Cost in 2026: Build vs Buy\u2026 | Inventiple",
+          "url": "https://www.inventiple.com/blog/rag-pipeline-cost-2026"
+        },
+        {
+          "title": "What is the cost of a RAG pipeline in production and how do you optimize it? - Usage AI",
+          "url": "https://www.usage.ai/faq/finops/cost-rag-pipeline-production-optimize"
+        },
+        {
+          "title": "RAG in Production: Cost Surprises After Sprint 3 (2026)",
+          "url": "https://www.kalviumlabs.ai/blog/rag-in-production-what-it-actually-costs-after-sprint-3"
+        },
+        {
+          "title": "RAG Pipeline & Vector Database Hosting",
+          "url": "https://omc.cloud/usecases/rag-pipeline"
+        },
+        {
+          "title": "How RAG workflows explode storage needs by 10x | Aman Mundra posted on the topic | LinkedIn",
+          "url": "https://www.linkedin.com/posts/mundraaman_the-hidden-cost-of-rag-10x-storage-explosion-activity-7320343249783558144-pXFN"
+        },
+        {
+          "title": "Retrieval Augmented Generation (RAG) Without a Vector Database",
+          "url": "https://www.youtube.com/watch?v=lnhoSbrD9eo"
+        },
+        {
+          "title": "RAG LLM: Boost LLM Accuracy with Context | Snorkel.ai",
+          "url": "https://snorkel.ai/large-language-models/rag-retrieval-augmented-generation"
+        },
+        {
+          "title": "Towards Understanding Systems Trade-offs in Retrieval-Augmented Generation Model Inference",
+          "url": "https://arxiv.org/html/2412.11854v1"
+        }
+      ],
+      "faithfulness": 0.9705882352941176
+    },
+    {
+      "id": "q11",
+      "question": "Is fine-tuning better than RAG for domain-specific question answering?",
+      "category": "trap_contradiction",
+      "answer": "Fine\u2011tuning adjusts a model\u2019s internal parameters on domain\u2011specific text, which gives the model a deeper grasp of the terminology and concepts that are typical for that field, while retrieval\u2011augmented generation (RAG) leaves the base model unchanged and instead pulls relevant passages from an external knowledge base at query time\u202f[2]. Because RAG does not require a separate training step, it can be deployed quickly and always cites the source it retrieved, which can be useful when the underlying documents change frequently\u202f[7].\n\nEmpirical work has compared the two approaches directly. In a medical\u2011question\u2011answering study, three strategies\u2014RAG alone, fine\u2011tuning alone, and a hybrid of both\u2014were trained on the MedQuAD dataset, but the excerpt does not disclose which performed best\u202f[1]. A separate investigation of less\u2011common factual knowledge found that RAG outperformed fine\u2011tuning by a large margin on the sparsest entities, suggesting that retrieval can be more effective when the target information is rarely seen during training\u202f[3].\n\nMany sources therefore advise that the choice depends on the use case and that the techniques can complement each other. One analysis notes that fine\u2011tuning tends to beat RAG for tasks that require deep domain expertise, yet the two methods work best when combined, analogous to a specialist\u2019s training plus access to a patient\u2019s chart\u202f[8]. Another commentary emphasizes that fine\u2011tuning and RAG are not mutually exclusive and can be jointly leveraged to maximize performance on question\u2011answering applications\u202f[4]. Consequently, fine\u2011tuning is not universally superior to RAG for domain\u2011specific question answering; the relative advantage varies with the nature of the knowledge and the operational constraints, and a hybrid approach is often recommended.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "Medical LLMs: Fine-Tuning vs. Retrieval-Augmented Generation",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12292519"
+        },
+        {
+          "title": "RAG vs. Fine-tuning - IBM",
+          "url": "https://www.ibm.com/think/topics/rag-vs-fine-tuning"
+        },
+        {
+          "title": "Fine Tuning vs. Retrieval Augmented Generation for Less Popular Knowledge",
+          "url": "https://arxiv.org/html/2403.01432v5"
+        },
+        {
+          "title": "Optimizing LLM Performance: RAG vs. Fine-Tuning - Galileo AI",
+          "url": "https://galileo.ai/blog/optimizing-llm-performance-rag-vs-finetune-vs-both"
+        },
+        {
+          "title": "RAG vs Fine Tuning: The Ultimate Side by Side Comparison",
+          "url": "https://aisera.com/blog/llm-fine-tuning-vs-rag"
+        },
+        {
+          "title": "RAG vs. fine-tuning: LLM learning techniques comparison - Addepto",
+          "url": "https://addepto.com/blog/rag-vs-fine-tuning-a-comparative-analysis-of-llm-learning-techniques"
+        },
+        {
+          "title": "Comparing Retrieval Augmented Generation and fine-tuning",
+          "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/retrieval-augmented-generation-options/rag-vs-fine-tuning.html"
+        },
+        {
+          "title": "Which is better, retrieval augmentation (RAG) or fine-tuning? Both. | Snorkel AI",
+          "url": "https://snorkel.ai/blog/which-is-better-retrieval-augmentation-rag-or-fine-tuning-both"
+        }
+      ],
+      "faithfulness": 0.9230769230769231
+    },
+    {
+      "id": "q12",
+      "question": "FastAPI vs Flask for serving LLM applications: what are the key differences?",
+      "category": "comparison",
+      "answer": "Flask remains a solid choice when the goal is a quick machine\u2011learning prototype, a simple dashboard, or any service that does not require asynchronous processing or built\u2011in request validation; its long\u2011standing stability and minimal setup make it attractive for small\u2011scale projects\u202f[5][1]. In contrast, FastAPI is positioned for higher\u2011performance and more scalable deployments of large language\u2011model (LLM) inference, where the ability to handle many concurrent I/O\u2011bound operations is critical\u202f[1][6].\n\nThe core architectural distinction is that Flask operates synchronously, handling each request in a single thread, whereas FastAPI is built on the ASGI stack and supports native async/await syntax, allowing it to serve many simultaneous requests efficiently\u202f[8][6]. This asynchronous capability translates into materially higher throughput for I/O\u2011heavy workloads such as LLM calls.\n\nFastAPI also adds productivity features that Flask lacks: it automatically generates OpenAPI documentation and leverages Pydantic v2 for data validation, reducing boilerplate and improving developer velocity\u202f[3][6]. Flask does not provide these capabilities out of the box, requiring additional libraries or manual effort to achieve comparable functionality.\n\nEmpirical comparisons show FastAPI delivering substantially faster response times for LLM backends, with reported three\u2011fold improvements over Flask and benchmarked capacities of roughly fifteen to twenty thousand requests per second in recent tests\u202f[7][3]. These performance gains, combined with its async design and built\u2011in tooling, make FastAPI the preferred framework for production\u2011grade LLM APIs, while Flask continues to serve well for simpler, prototype\u2011level applications.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "Day 67: Model Serving and APIs \u2014 Using Flask or FastAPI",
+          "url": "https://medium.com/@bhatadithya54764118/day-67-model-serving-and-apis-using-flask-or-fastapi-674f093d7656"
+        },
+        {
+          "title": "Is FastAPI truly faster than Flask for serving LLM inference?",
+          "url": "https://www.icertglobal.com/community/fastapi-vs-flask-for-llms-which-is-truly-faster"
+        },
+        {
+          "title": "FastAPI vs Flask: 4x Faster + Auto Docs [2026]",
+          "url": "https://tech-insider.org/fastapi-vs-flask-2026"
+        },
+        {
+          "title": "Flask vs FastAPI - Reddit",
+          "url": "https://www.reddit.com/r/FastAPI/comments/1dl7fp2/flask_vs_fastapi"
+        },
+        {
+          "title": "Shirin Khosravi Jam's Post - Flask vs FastAPI - LinkedIn",
+          "url": "https://www.linkedin.com/posts/shirin-khosravi-jam_flask-vs-fastapi-explained-in-2-mins-or-activity-7353318011870572544-9dmt"
+        },
+        {
+          "title": "FastAPI vs Flask: 2026 Decision Guide | Uvik Software",
+          "url": "https://uvik.net/blog/fastapi-vs-flask"
+        },
+        {
+          "title": "FastAPI vs Express vs Flask for LLM Agents",
+          "url": "https://agixtech.com/insights/fastapi-vs-expressjs-vs-flask-backend-llms"
+        },
+        {
+          "title": "Flask vs. FastAPI: A Deep Dive into Synchronous and Asynchronous Python Web Frameworks",
+          "url": "https://medium.com/@gsaidheeraj/flask-vs-fastapi-a-deep-dive-into-synchronous-and-asynchronous-python-web-frameworks-9cf4b62caff8"
+        }
+      ],
+      "faithfulness": null
+    },
+    {
+      "id": "q13",
+      "question": "Do multi-agent AI systems actually reduce hallucination compared to single LLM calls?",
+      "category": "trap_contradiction",
+      "answer": "Multi\u2011agent frameworks are presented as a way to curb the tendency of large language models to generate confident but incorrect statements.  By having several specialized agents process the same query and compare their outputs, the system can flag inconsistencies and reject implausible answers, which the authors of a commercial overview describe as \u201ceffectively eliminating hallucinations through cross\u2011validation\u201d\u202f[1].  A technical blog similarly argues that the lack of collaboration in single\u2011agent setups is a key source of hallucinations, and that coordinated multi\u2011agent work offers a superior remedy\u202f[3].\n\nEmpirical work supports the intuition that consensus among multiple models can lower hallucination rates.  In a paper introducing a \u201cCouncil Mode\u201d that routes queries to heterogeneous frontier models and synthesizes a consensus, the authors report a 35.9\u202f% relative reduction in hallucinations on the HaluEval benchmark together with a notable gain in factual accuracy\u202f[4].  However, a discussion on Hacker News points out that the majority\u2011vote approach used in some multi\u2011agent studies does not always beat simply asking a single model multiple times; the authors note that in their Table\u202f3 the multi\u2011agent pipeline sometimes performed worse than repeated single\u2011model calls\u202f[2].\n\nTaken together, the sources indicate that multi\u2011agent architectures can reduce hallucination when they incorporate explicit cross\u2011checking or consensus mechanisms, but the benefit is not guaranteed across all designs.  Systems that rely only on drawing multiple samples and voting may fail to improve\u2014or may even degrade\u2014accuracy compared with repeated single\u2011model queries.  Thus, while multi\u2011agent setups have the potential to lower hallucination, their effectiveness depends on how the agents are coordinated and how the final answer is synthesized.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "Reducing AI Hallucinations: Reliable Results with Multi-Agent LLMs | GSD Venture Studios",
+          "url": "https://gsdvs.com/reducing-ai-hallucinations-how-multi-agent-llms-provide-reliable-results"
+        },
+        {
+          "title": "\"Research shows that AI systems with 30+ agents out-performs a simple LLM call i... | Hacker News",
+          "url": "https://news.ycombinator.com/item?id=41174920"
+        },
+        {
+          "title": "Multi-Agent vs Single Agent",
+          "url": "https://medium.com/@kyeg/multi-agent-vs-single-agent-a72713812b68"
+        },
+        {
+          "title": "Mitigating Hallucination and Bias in LLMs via Multi-Agent Consensus",
+          "url": "https://arxiv.org/html/2604.02923v1"
+        },
+        {
+          "title": "Using multi-agent architecture to mitigate the risk of LLM hallucinations",
+          "url": "https://chatpaper.com/chatpaper/paper/157406"
+        },
+        {
+          "title": "Survey and analysis of hallucinations in large language models",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12518350"
+        },
+        {
+          "title": "Multi-Agent Reasoning Benchmark - Emergent Mind",
+          "url": "https://www.emergentmind.com/topics/multi-agent-reasoning-driven-benchmark"
+        },
+        {
+          "title": "Single-agent vs. multi-agent systems: Enterprise AI tradeoffs - Dataiku",
+          "url": "https://www.dataiku.com/blog/single-agent-vs-multi-agent-systems"
+        }
+      ],
+      "faithfulness": null
+    },
+    {
+      "id": "q14",
+      "question": "What is the difference between context precision and context recall in RAG evaluation?",
+      "category": "factual",
+      "answer": "Context precision gauges how many of the chunks that a RAG system pulls are actually relevant to the user\u2019s query. It is expressed as the proportion of retrieved pieces that contain useful information, thereby indicating the amount of noise in the retrieval output. When this score is low, it signals that many of the returned fragments do not help answer the question, reflecting poor relevance filtering\u30105\u3011. In practice, precision acts as a filter that removes extraneous material so that the generated response can remain concise and accurate\u30101\u3011.  \n\nContext recall, by contrast, measures the completeness of the retrieved set. It asks whether the retrieved context includes all of the information required to answer the query, typically by comparing the retrieved chunks to a ground\u2011truth reference. A low recall score means the retriever missed key facts, while a high score indicates that the necessary content is present, making a correct answer possible if the generator works properly\u30102\u3011. This metric therefore captures the risk of missing essential evidence rather than the presence of irrelevant material\u30107\u3011.  \n\nThe two metrics address opposite aspects of retrieval quality. High precision with low recall yields a small, clean set of documents that nevertheless omits some needed details, whereas high recall with low precision provides most of the required information but also includes a lot of irrelevant noise. Balancing both ensures that a RAG system retrieves enough pertinent content while minimizing distracting or unnecessary chunks\u30101\u3011.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "RAG Evaluation Simplified \u2014 Part 2: Deep Dive into Recall & Precision",
+          "url": "https://medium.com/@fassha08/rag-evaluation-simplified-part-2-deep-dive-into-recall-precision-4853709630bb"
+        },
+        {
+          "title": "Making Sense of RAG Evaluation Metrics",
+          "url": "https://thecodexandthecompass.substack.com/p/making-sense-of-rag-evaluation-metrics"
+        },
+        {
+          "title": "RAG Evaluation Metrics Explained: Context Precision, Recall, Relevancy & Faithfulness",
+          "url": "https://www.youtube.com/watch?v=wOoYP55eYF0"
+        },
+        {
+          "title": "Ragas context precision evaluation | Python",
+          "url": "https://campus.datacamp.com/courses/retrieval-augmented-generation-rag-with-langchain/improving-the-rag-architecture?ex=12"
+        },
+        {
+          "title": "Context Precision - Galileo",
+          "url": "https://docs.galileo.ai/concepts/metrics/rag/retrieval-quality/context-precision"
+        },
+        {
+          "title": "Context Precision | With & Without Reference | RAGAS and GROQ LLM | LLM Testing",
+          "url": "https://www.youtube.com/watch?v=rnIn_8Encjw"
+        },
+        {
+          "title": "Context Recall | RAGAS and GROQ LLM | LLM Testing",
+          "url": "https://www.youtube.com/watch?v=I2f20up30GQ"
+        },
+        {
+          "title": "Context Awareness Gate For Retrieval Augmented Generation",
+          "url": "https://arxiv.org/html/2411.16133v1"
+        }
+      ],
+      "faithfulness": null
+    },
+    {
+      "id": "q15",
+      "question": "What's a reasonable latency budget for a production RAG API endpoint?",
+      "category": "ambiguous",
+      "answer": "A production\u2011grade Retrieval\u2011Augmented Generation (RAG) service is generally expected to respond within the time frame that feels conversational to a user.  In interactive settings such as a chatbot, the overall latency target is typically between one and two seconds, with the retrieval step and the generation step each constrained to roughly five\u2011to\u2011ten hundred milliseconds so that the combined response stays within that window\u30104\u3011.  \n\nThe retrieval portion can be made very fast when the vector store is optimized.  For example, Qdrant has been reported to handle more than a thousand queries per second while averaging about three and a half milliseconds per query on a one\u2011million\u2011vector collection\u30101\u3011.  In practice, many deployments see the retrieval stage add on the order of four to six hundred milliseconds, and a high\u2011performance gateway written in Rust can contribute only forty to sixty milliseconds of overhead\u30105\u3011.  \n\nPutting these figures together suggests a reasonable latency budget for a production RAG API endpoint would allocate a few hundred milliseconds for vector search and any surrounding retrieval logic, another five\u2011to\u2011ten hundred milliseconds for the language\u2011model inference, and keep the total end\u2011to\u2011end response comfortably under one second to stay well within the one\u2011to\u2011two\u2011second conversational ceiling that is widely regarded as acceptable\u30107\u3011.",
+      "num_sources": 8,
+      "sources": [
+        {
+          "title": "From Prototype to Production: Scaling RAG API Applications",
+          "url": "https://customgpt.ai/rag-api-applications"
+        },
+        {
+          "title": "Monitoring RAG Performance in Production - YouTube",
+          "url": "https://www.youtube.com/watch?v=xjNneRZ_gm0"
+        },
+        {
+          "title": "Identifying Performance Bottlenecks in RAG Pipelines",
+          "url": "https://apxml.com/courses/optimizing-rag-for-production/chapter-1-production-rag-foundations/rag-performance-bottlenecks"
+        },
+        {
+          "title": "What is an acceptable latency for a RAG system in ...",
+          "url": "https://milvus.io/ai-quick-reference/what-is-an-acceptable-latency-for-a-rag-system-in-an-interactive-setting-eg-a-chatbot-and-how-do-we-ensure-both-retrieval-and-generation-phases-meet-this-target"
+        },
+        {
+          "title": "What's considered acceptable latency for production RAG in 2026?",
+          "url": "https://www.reddit.com/r/LangChain/comments/1qvg9x9/whats_considered_acceptable_latency_for"
+        },
+        {
+          "title": "Retrieval Latency and Performance Optimization Techniques",
+          "url": "https://unstructured.io/insights/retrieval-latency-optimization-for-production-rag-systems"
+        },
+        {
+          "title": "RAG System Latency Optimization - Sub-Second Response Times",
+          "url": "https://www.linkedin.com/pulse/week-4-optimization-production-day-22-rag-system-latency-marques-fjspe"
+        },
+        {
+          "title": "Is the AI Agent node too slow for production RAG? Seeing 16s+ ...",
+          "url": "https://community.n8n.io/t/is-the-ai-agent-node-too-slow-for-production-rag-seeing-16s-response-times/287840"
+        }
+      ],
+      "faithfulness": null
     }
   ]
 }

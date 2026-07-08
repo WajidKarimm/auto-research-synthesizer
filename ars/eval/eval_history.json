@@ -1,0 +1,16 @@
+[
+  {
+    "run_at": "2026-07-05T14:20:55.888031+00:00",
+    "average_faithfulness": 0.9109,
+    "num_questions": 15,
+    "num_scored": 15,
+    "passed": true
+  },
+  {
+    "run_at": "2026-07-05T14:53:24.069157+00:00",
+    "average_faithfulness": 0.869,
+    "num_questions": 15,
+    "num_scored": 11,
+    "passed": true
+  }
+]

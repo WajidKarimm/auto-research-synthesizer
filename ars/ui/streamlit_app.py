@@ -1,6 +1,17 @@
 """Streamlit app for running Auto-Research Synthesizer."""
 
+from __future__ import annotations
+
+from pathlib import Path
+import sys
+
 from dotenv import load_dotenv
+
+# Ensure the repository root is on sys.path so `from ars.core.graph import run` works
+# even when Streamlit executes this file from inside `ars/ui`.
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 import streamlit as st
 

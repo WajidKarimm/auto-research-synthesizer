@@ -14,6 +14,7 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from ars.core.tools import tavily_search
+from ars.retrieval import RetrievalConfig, rank_sources
 
 # openai/gpt-oss-120b is Groq's current recommended general-purpose model
 # (llama-3.3-70b-versatile was deprecated June 2026 — don't use it in new code)
@@ -97,27 +98,24 @@ def plan(question: str) -> list[str]:
 MAX_TOTAL_SOURCES = 8
 
 
-def research(queries: list[str]) -> list[dict]:
+def research(queries: list[str], question: str = "") -> list[dict]:
     """
     Capped at MAX_TOTAL_SOURCES regardless of query count, to bound
     prompt size against Groq's free-tier TPM limit.
     """
-    seen_urls: set[str] = set()
-    all_sources: list[dict] = []
+    candidate_sources: list[dict] = []
 
     for query in queries:
-        if len(all_sources) >= MAX_TOTAL_SOURCES:
-            break
         results = tavily_search(query)
         for result in results:
-            if len(all_sources) >= MAX_TOTAL_SOURCES:
-                break
-            if result["url"] in seen_urls:
-                continue
-            seen_urls.add(result["url"])
-            all_sources.append({**result, "query": query})
+            candidate_sources.append({**result, "query": query})
 
-    return all_sources
+    return rank_sources(
+        question=question,
+        queries=queries,
+        sources=candidate_sources,
+        config=RetrievalConfig(max_sources=MAX_TOTAL_SOURCES),
+    )
 
 
 # ---------------------------------------------------------------------------

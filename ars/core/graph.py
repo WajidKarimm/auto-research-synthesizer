@@ -47,7 +47,7 @@ def planner_node(state: ResearchState) -> ResearchState:
 
 
 def researcher_node(state: ResearchState) -> ResearchState:
-    sources = research(state["queries"])
+    sources = research(state["queries"], state["question"])
     print(f"[researcher] collected {len(sources)} unique sources")
     return {"sources": sources}
 

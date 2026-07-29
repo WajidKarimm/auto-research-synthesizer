@@ -1,2 +1,13 @@
-# Reserved for Phase 5 runtime settings.
-# Keep this file intentionally small until the FastAPI/API surface lands.
+model_name: openai/gpt-oss-120b
+
+search:
+  max_results: 3
+  max_content_chars: 900
+
+retrieval:
+  max_sources: 8
+
+cache:
+  enabled: true
+  ttl_seconds: 900
+  max_entries: 256

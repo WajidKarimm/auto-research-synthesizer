@@ -6,7 +6,6 @@ no RAG, no guardrails. The only thing being validated here is:
 does this loop produce a decent, cited research answer?
 """
 
-import os
 from pathlib import Path
 from typing import Any
 
@@ -15,10 +14,11 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from ars.core.tools import tavily_search
 from ars.retrieval import RetrievalConfig, rank_sources
+from ars.utils import SETTINGS
 
 # openai/gpt-oss-120b is Groq's current recommended general-purpose model
 # (llama-3.3-70b-versatile was deprecated June 2026 — don't use it in new code)
-MODEL_NAME = os.environ.get("ARS_MODEL", "openai/gpt-oss-120b")
+MODEL_NAME = SETTINGS.model_name
 PROMPTS_PATH = Path(__file__).resolve().parents[2] / "config" / "prompts.yaml"
 
 
@@ -95,7 +95,7 @@ def plan(question: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-MAX_TOTAL_SOURCES = 8
+MAX_TOTAL_SOURCES = SETTINGS.retrieval.max_sources
 
 
 def research(queries: list[str], question: str = "") -> list[dict]:

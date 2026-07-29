@@ -89,6 +89,31 @@ curl -X POST http://127.0.0.1:8000/research ^
   -d "{\"question\":\"What are the tradeoffs of pgvector vs Pinecone?\"}"
 ```
 
+## Docker
+
+Build the container:
+
+```bash
+docker build -t ars:latest .
+```
+
+Run the API container:
+
+```bash
+docker run --rm -p 8000:8000 -e GROQ_API_KEY=... -e TAVILY_API_KEY=... ars:latest
+```
+
+Run with Docker Compose:
+
+```bash
+cp .env.example .env
+# edit .env with your API keys
+
+docker compose up --build
+```
+
+The API will be available at `http://localhost:8000`.
+
 ## Configuration
 
 Default runtime settings live in `config/config.yaml`:

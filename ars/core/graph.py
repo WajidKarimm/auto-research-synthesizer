@@ -13,13 +13,31 @@ from typing import TypedDict
 from langgraph.graph import StateGraph, START, END
 
 from ars.core.agents import plan, research, write
+from ars.safety import validate_question
 
 
 class ResearchState(TypedDict, total=False):
     question: str
+    safety_error: str
     queries: list[str]
     sources: list[dict]
     answer: str
+
+
+def safety_node(state: ResearchState) -> ResearchState:
+    check = validate_question(state["question"])
+    if check.allowed:
+        return {"question": check.question}
+
+    return {
+        "question": check.question,
+        "safety_error": check.reason or "Question did not pass safety checks.",
+        "answer": check.reason or "Question did not pass safety checks.",
+    }
+
+
+def safety_route(state: ResearchState) -> str:
+    return "blocked" if state.get("safety_error") else "allowed"
 
 
 def planner_node(state: ResearchState) -> ResearchState:
@@ -41,11 +59,20 @@ def writer_node(state: ResearchState) -> ResearchState:
 
 def build_graph():
     graph = StateGraph(ResearchState)
+    graph.add_node("safety", safety_node)
     graph.add_node("planner", planner_node)
     graph.add_node("researcher", researcher_node)
     graph.add_node("writer", writer_node)
 
-    graph.add_edge(START, "planner")
+    graph.add_edge(START, "safety")
+    graph.add_conditional_edges(
+        "safety",
+        safety_route,
+        {
+            "allowed": "planner",
+            "blocked": END,
+        },
+    )
     graph.add_edge("planner", "researcher")
     graph.add_edge("researcher", "writer")
     graph.add_edge("writer", END)
@@ -79,5 +106,6 @@ if __name__ == "__main__":
     final_state = run(q)
     print(f"\n{'-' * 60}\nAnswer:\n{final_state['answer']}\n")
     print(f"{'-' * 60}")
-    _print_sources(final_state["sources"])
+    if final_state.get("sources"):
+        _print_sources(final_state["sources"])
     print()

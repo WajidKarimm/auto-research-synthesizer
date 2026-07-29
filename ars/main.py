@@ -7,7 +7,10 @@ except ImportError:  # pragma: no cover - useful before API deps are installed
 
 
 if FastAPI is not None:
+    from ars.api import router as api_router
+
     app = FastAPI(title="Auto-Research Synthesizer")
+    app.include_router(api_router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

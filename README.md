@@ -1,28 +1,27 @@
 # Auto-Research Synthesizer
 
-Auto-Research Synthesizer (ARS) is a small, staged LangGraph project for
-turning a complex research question into a sourced answer.
+Auto-Research Synthesizer (ARS) is a small LangGraph research assistant that
+turns a complex question into a sourced answer.
 
-The current core is intentionally linear with lightweight safety, retrieval,
-caching, and API layers around it:
+The current flow is:
 
 ```text
 Safety -> Planner -> Search + Cache -> Retrieval/Rerank -> Writer -> API
 ```
 
-That simplicity is the point. ARS first proves that a minimal loop can plan
-useful searches, collect web snippets, and write a faithful cited answer before
-adding retrieval infrastructure, guardrails, caching, and an API.
+ARS keeps the architecture intentionally simple: a planner creates search
+queries, Tavily collects sources, a lightweight retriever deduplicates and
+ranks them, and a writer produces a cited answer.
 
 ## Current Status
 
 - Phase 1: linear LangGraph loop in `ars/core/`
 - Phase 2: golden eval dataset and faithfulness eval runner in `ars/eval/`
-- Phase 3: source normalization and lightweight lexical reranking in
-  `ars/retrieval/`
+- Phase 3: source normalization and lexical reranking in `ars/retrieval/`
 - Phase 4: local input safety checks in `ars/safety/`
 - Phase 5: FastAPI app and `/research` endpoint in `ars/main.py` and `ars/api/`
-- Phase 6: in-memory TTL cache for Tavily search results in `ars/cache/`
+- Phase 6: in-memory TTL cache and runtime settings in `ars/cache/` and
+  `ars/utils/settings.py`
 
 ## Quick Start
 
@@ -32,34 +31,116 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Create a `.env` file with at least:
+Create a `.env` file with:
 
 ```bash
 GROQ_API_KEY=...
 TAVILY_API_KEY=...
 ```
 
-Run the research loop:
+Run the CLI:
 
 ```bash
 python -m ars "What are the tradeoffs of pgvector vs Pinecone?"
 ```
 
-Or call the graph module directly:
+Run the graph module directly:
 
 ```bash
 python -m ars.core.graph "What are the tradeoffs of pgvector vs Pinecone?"
 ```
 
-Run the API:
+## Streamlit App
+
+Start the user-friendly web app:
+
+```bash
+streamlit run ars/ui/streamlit_app.py
+```
+
+The app provides a question box, example questions, a sourced answer view,
+planned queries, and expandable source snippets.
+
+## API
+
+Start the FastAPI server:
 
 ```bash
 uvicorn ars.main:app --reload
 ```
 
-Then open `http://127.0.0.1:8000/docs`.
+Open the docs:
 
-Run the Phase 2 eval smoke test:
+```text
+http://127.0.0.1:8000/docs
+```
+
+Health check:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+Run a research request:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research ^
+  -H "Content-Type: application/json" ^
+  -d "{\"question\":\"What are the tradeoffs of pgvector vs Pinecone?\"}"
+```
+
+## Configuration
+
+Default runtime settings live in `config/config.yaml`:
+
+```yaml
+model_name: openai/gpt-oss-120b
+
+search:
+  max_results: 3
+  max_content_chars: 900
+
+retrieval:
+  max_sources: 8
+
+cache:
+  enabled: true
+  ttl_seconds: 900
+  max_entries: 256
+```
+
+Environment variables can override these settings:
+
+```bash
+ARS_MODEL=...
+ARS_SEARCH_MAX_RESULTS=3
+ARS_SEARCH_MAX_CONTENT_CHARS=900
+ARS_RETRIEVAL_MAX_SOURCES=8
+ARS_SEARCH_CACHE_ENABLED=true
+ARS_SEARCH_CACHE_TTL_SECONDS=900
+ARS_SEARCH_CACHE_MAX_ENTRIES=256
+```
+
+## Checks
+
+Compile the main modules:
+
+```bash
+python -m py_compile ars\__init__.py ars\__main__.py ars\core\agents.py ars\core\graph.py ars\core\tools.py ars\safety\__init__.py ars\retrieval\__init__.py ars\cache\__init__.py ars\api\__init__.py ars\models\__init__.py ars\main.py ars\utils\settings.py
+```
+
+Run local checks that do not need API keys:
+
+```bash
+python -m ars hi
+python -c "from ars.utils import SETTINGS; print(SETTINGS)"
+python -c "from ars.safety import validate_question; print(validate_question('hi')); print(validate_question('What are the tradeoffs of pgvector vs Pinecone?'))"
+python -c "from ars.cache import TTLCache; c=TTLCache[int](ttl_seconds=60, max_entries=2); c.set('a', 1); print(c.get('a')); print(c.get('x'))"
+python -c "from ars.retrieval import rank_sources; sources=[{'title':'Pinecone vector database','url':'https://a','content':'managed vector search and embeddings','query':'pinecone vector db'},{'title':'Cooking notes','url':'https://b','content':'recipe only','query':'food'}]; print(rank_sources('pgvector vs pinecone tradeoffs', ['pgvector pinecone vector database'], sources)[0]['url'])"
+python -c "from fastapi.testclient import TestClient; from ars.main import app; client=TestClient(app); print(client.get('/health').json()); print(client.post('/research', json={'question':'hi'}).json())"
+```
+
+Run the eval smoke test:
 
 ```bash
 python -m ars.eval.run_evals --limit 3
@@ -69,15 +150,22 @@ python -m ars.eval.run_evals --limit 3
 
 ```text
 ars/
-  core/       Planner, Researcher, Writer, and Tavily search tool
+  core/       Planner, researcher, writer, graph, and Tavily search tool
   eval/       Golden dataset, faithfulness eval runner, local metric history
   retrieval/  Source normalization and lexical reranking
   safety/     Input guardrails
   api/        FastAPI routes
   models/     Shared API/domain models
   cache/      In-memory TTL cache
-  utils/      Shared helpers
+  ui/         Streamlit app
+  utils/      Settings and shared helpers
 config/
   prompts.yaml
   config.yaml
 ```
+
+## Notes
+
+- The current cache is in-memory and resets when the process exits.
+- Retrieval is lexical reranking for now, not embeddings or pgvector yet.
+- Safety checks are local guardrails, not a full moderation/policy system.

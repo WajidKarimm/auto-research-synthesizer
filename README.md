@@ -52,7 +52,7 @@ python -m ars.core.graph "What are the tradeoffs of pgvector vs Pinecone?"
 
 ## Streamlit App
 
-Start the user-friendly web app:
+Start the user-friendly web app locally:
 
 ```bash
 streamlit run ars/ui/streamlit_app.py
@@ -60,6 +60,21 @@ streamlit run ars/ui/streamlit_app.py
 
 The app provides a question box, example questions, a sourced answer view,
 planned queries, and expandable source snippets.
+
+## Streamlit Community Cloud deploy
+
+This repo includes `streamlit_app.py` at the root so Streamlit Cloud can launch it directly. Do not point Streamlit at `ars/__main__.py`.
+
+1. Push your repo to GitHub.
+2. Go to https://share.streamlit.io and sign in.
+3. Create a new app and choose this repository.
+4. Set the app file to `streamlit_app.py`.
+5. In the Streamlit Cloud dashboard, add secrets for:
+   - `GROQ_API_KEY`
+   - `TAVILY_API_KEY`
+   - `ARS_MODEL` (optional)
+
+Deploy without a payment method using Streamlit Community Cloud.
 
 ## API
 
@@ -170,6 +185,21 @@ Run the eval smoke test:
 ```bash
 python -m ars.eval.run_evals --limit 3
 ```
+
+## Render deployment
+
+This repository includes `render.yaml` so you can connect it directly to Render.
+
+1. Push your repo to GitHub.
+2. In Render, create a new Web Service.
+3. Choose "Connect a repo" and select this repository.
+4. Render will use `render.yaml` and build the Docker image.
+5. In Render service settings, set the environment variables:
+   - `GROQ_API_KEY`
+   - `TAVILY_API_KEY`
+   - `ARS_MODEL` (optional)
+
+Render will deploy the service and expose it on a public URL.
 
 ## Project Layout
 

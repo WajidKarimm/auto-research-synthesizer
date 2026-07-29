@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: auto-research-synthesizer
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    port: 8000
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+        value: ""
+      - key: TAVILY_API_KEY
+        sync: false
+        value: ""
+      - key: ARS_MODEL
+        value: openai/gpt-oss-120b

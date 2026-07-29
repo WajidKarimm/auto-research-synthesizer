@@ -1,6 +1,13 @@
 """Command-line entrypoint for `python -m ars`."""
 
+from pathlib import Path
 import sys
+
+# Ensure the repository root is on sys.path so package imports work even when
+# the module is executed from a non-root working directory.
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from dotenv import load_dotenv
 
